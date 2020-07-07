@@ -12,9 +12,11 @@ router.get("/files", (req, res) => {
       const dataArray = Object.keys(result).map((data) => {
         return result[data];
       });
-      for (let i = dataArray.length < 10 ? dataArray.length : 10; i >= 1; i--) {
+      let j = 1;
+      for (let i = dataArray.length - 1; i >= 1 && j <= 10; i--, j++) {
         response.push(dataArray[i]);
       }
+      console.log(response);
       res.send(response);
     });
   } catch (e) {
