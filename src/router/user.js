@@ -16,7 +16,6 @@ router.get("/files", (req, res) => {
       for (let i = dataArray.length - 1; i >= 1 && j <= 10; i--, j++) {
         response.push(dataArray[i]);
       }
-      console.log(response);
       res.send(response);
     });
   } catch (e) {
@@ -26,24 +25,41 @@ router.get("/files", (req, res) => {
 
 const upload = multer({
   dest: "uploads",
+  fileFilter(req, file, cb) {
+    //using regex here
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error("please upload the file only in jpg/jpeg/png"));
+    }
+    cb(undefined, true);
+  },
 });
-
-router.post("/", upload.single("uploads"), (req, res) => {
-  let fileName = req.file.filename;
-  const date = new Date();
-  let path = "/home/work/nodeagain/node_app/node_with_sql/src/uploads/";
-  filename = req.file.filename;
-  if (req.file) {
-    const finalPath = path.concat(fileName);
-    let stmt = `INSERT INTO test.Giix(path, FileName, uploadedOn)
+// buffer
+router.post(
+  "/",
+  upload.single("uploads"),
+  (req, res) => {
+    let fileName = req.file.filename;
+    console.log("guied" + fileName);
+    const date = new Date();
+    let path =
+      "/home/swastik/work/nodeagain/node_app/node_with_sql/src/uploads";
+    filename = req.file.filename;
+    if (req.file) {
+      const finalPath = path.concat(fileName);
+      let stmt = `INSERT INTO test.Giix(path, FileName, uploadedOn)
               VALUES(?,?,?)`;
-    let todo = [finalPath, fileName, date];
-    con.query(stmt, todo, function (err, result, fields) {
-      if (err) throw err;
-    });
+      let todo = [finalPath, fileName, date];
+      con.query(stmt, todo, function (err, result, fields) {
+        if (err) throw err;
+      });
+    }
+    res.send();
+  },
+  (error, req, res, next) => {
+    console.log(error);
+    res.status(400).send({ error: error.message });
   }
-  res.send();
-});
+);
 
 router.post("/updateName", async (req, res) => {
   let data = [req.body.name, req.body.id];
